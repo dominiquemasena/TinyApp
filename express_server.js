@@ -32,6 +32,10 @@ app.get("/urls:shortURL", (req, res) => {
   res.render("urls_show", webPage);
 });
 
+app.get('_header', function(req, res) {
+  res.render('partials/_header');
+})
+
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
