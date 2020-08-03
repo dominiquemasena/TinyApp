@@ -12,13 +12,8 @@ const requestHandler = function(request, response) {
     response.end("404 Page Not Found");
   }
 };
-
 const server = http.createServer(requestHandler);
-
 
 server.listen(PORT, () => {
   console.log(`Server listening on: http://localhost:${PORT}`);
 });
-
-
-
