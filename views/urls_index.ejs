@@ -9,8 +9,6 @@
   <title>TinyApp</title>
 </head>
 <body>
-  <%- include('partials/_header') %>
-  <main style="margin: 1em;">
     <h3>My URLs</h3>
     <table class="table">
       <thead>
@@ -19,14 +17,16 @@
           <th scope="col">Long URL</th>
         </tr>
       </thead>
-      <title href="http://www.websitename.com/shortenURL">Shorten URL</title>
       <tbody>
         <% for(let url in urls) { %>
           <tr>
             <td><%= url %></td>
             <td><%= urls[url] %></td>
           </tr>
-        <% } %>
+        <%} %>
+        <tr>
+        <td colspan="2"><a href="#">Shorten URL</a></td>
+        </tr>
       </tbody>
     </table>
   </main>
