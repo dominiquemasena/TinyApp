@@ -2,6 +2,15 @@ const express = require("express");
 const app = express();
 const PORT = 8080; // default port 8080
 
+const bodyParser = require("body-parser");
+app.use(bodyParser.urlencoded({extended: true}));
+
+// function generateRandomString() {
+//   return Math.random().toString(36).substring(2,8);
+// }
+
+// generateRandomString();
+
 app.set("view engine", "ejs");
 
 const urlDatabase = {
@@ -44,6 +53,5 @@ app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
 
-const bodyParser = require("body-parser");
-app.use(bodyParser.urlencoded({extended: true}));
+
 
