@@ -1,9 +1,11 @@
 const express = require("express");
+const cookieParser = require('cookie-parser')
 const app = express();
 const PORT = 8080; // default port 8080
 
 const bodyParser = require("body-parser");
 app.use(bodyParser.urlencoded({extended: true}));
+app.use(cookieParser())
 
 function generateRandomString() {
   return Math.random().toString(36).substring(2,8);
@@ -30,13 +32,15 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 })
 
 app.get("/urls/:shortURL", (req, res) => {
-  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL] };
+  let templateVars = { shortURL: req.params.shortURL, longURL: urlDatabase[req.params.shortURL], username: req.cookies.username};
   res.render("urls_show", templateVars);
 });
 
 
 app.get("/urls", (req, res) => {
-  let templateVars = { urls: urlDatabase };
+  // console.log(req.cookies);
+  let templateVars = { urls: urlDatabase,
+  username: req.cookies.username};
   res.render("urls_index", templateVars);
 });
 
@@ -56,7 +60,29 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 }); 
 //* */
 
+// app.post("/urls/:shortURL/login", (req, res) => {
+// res.cookie
+//   res.redirect("/urls")
+// }); 
+// app.post("/login", (req, res) => {
+//   const username = req.body.username;
+//   res.cookie(username, req.body.username )
+//   res.redirect("/urls")
+// })
 
+app.post("/login", (req, res) => {
+  const username = req.body.username
+  // console.log('username: ', username)
+  res.cookie("username", username);
+  res.redirect('/urls');
+});
+
+app.post("/logout", (req, res) => {
+  const username = req.body.username
+  // console.log('username: ', username)
+  res.clearCookie("username", {path: "username"});
+  res.redirect('/urls');
+});
 // app.post("/urls/:shortURL", (req, res) => {
 //   let shortURL = req.params.shortURL;
 //   let longURL = req.body.longURL;
@@ -96,6 +122,7 @@ app.get("/hello", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
+
 
 
 // app.post('/urls/:short/edit', (req,res) => {
