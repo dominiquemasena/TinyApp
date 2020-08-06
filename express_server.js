@@ -36,6 +36,15 @@ const users = {
   }
 };
 
+const getUser = function(email) {
+  for (let user in users) {
+    if (user.email === email) {
+      return user;
+    }
+  }
+
+}
+
 /// GET ///
 
 app.get("/", (req, res) => {
@@ -51,30 +60,41 @@ app.get("/hello", (req, res) => {
 })
 
 app.get("/urls/new", (req, res) => {
-  res.render("urls_new");
+  const id = req.cookies["id"];
+  const user = users["id"];
+  const templateVars = {
+    user
+  };
+  res.render("urls_new", templateVars);
 });
 
 app.get("/urls/:shortURL/edit", (req, res) => {
+  const id = req.cookies["id"];
+  const user = users["id"];
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL],
+    user: user
   };
   res.render("urls_show", templateVars);
 });
 
 app.get("/urls/:shortURL", (req, res) => {
+  const id = req.cookies["id"];
+  const user = users["id"];
   let templateVars = { shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL], 
-    id: req.cookies["id"]};
+    user: user};
   res.render("urls_show", templateVars);
 });
 
 
 app.get("/urls", (req, res) => {
-  console.log(req.cookies["id"]);
-  let templateVars = { urls: urlDatabase,
-  id: req.cookies["id"]
-};
+  const id = req.cookies["id"];
+  const user = users["id"];
+  // console.log("user id =", id);
+
+  let templateVars = { urls: urlDatabase, user: user};
   res.render("urls_index", templateVars);
 });
 
@@ -114,23 +134,29 @@ app.post("/login", (req, res) => {
 
 app.post('/register', (req, res) => {
  
-  const newUser = {}
   const id = generateRandomString(); 
-  newUser.email = req.body.email;
-  newUser.password = req.body.password;
-  users[id] = newUser;
-  console.log("email:", req.body.email); // email is undefined why is that?
-  console.log("body", req.body);
-
-  if (newUser.password === "" || newUser.email === "") {
-    return res.status(400).send("400 Status Code: No password or email entered")
+  const email = req.body.email;
+  const password = req.body.password;
+  
+  if (!password || !email) {
+    return res.status(400).send("400 Status Code: No password or email entered.")
   } 
+  
+  const user = getUser(email);
+  // if (!user || user.password !== password) {
+  //   return res.status(302).send("302 Status Code: Bad username or password.")
+  // } 
 
-  for (let user in users){
-    if (user.email) {
-      return res.status(400).send("400 Status Code: This email is already registered. Please log in.")
-    }
-  }
+  if (user) {
+    return res.status(400).send("400 Status Code: Duplicate user.")
+  } 
+  const newUser = {id, email, password};
+  users[id] = newUser;
+  // console.log("email:", req.body.email); 
+  // console.log("body", req.body);
+
+
+  
   res.cookie("id", id);
   res.redirect('/urls');
   
@@ -166,14 +192,18 @@ app.post("/u/:shortURL", (req, res) => {
 //req.params 
 
 app.get("/login", (req, res) => {
+  const id = req.cookies["id"];
+  const user = users["id"];
   let templateVars = { urls: urlDatabase,
-    id: req.cookies["id"]};
+    user: user};
   res.render("urls_login", templateVars);
 });
 
 app.get("/register", (req, res) => {
+  const id = req.cookies["id"];
+  const user = users["id"];
   let templateVars = { urls: urlDatabase,
-    id: req.cookies["id"]};
+    user: user};
   res.render("index_register", templateVars);
 });
 
