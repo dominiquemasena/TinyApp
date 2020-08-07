@@ -40,8 +40,8 @@ const getUser = function(email) {
   for (let user in users) {
     if (user.email === email) {
       return user;
-    }
-  }
+    } 
+  } 
 
 }
 
@@ -125,9 +125,9 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 // })
 
 app.post("/login", (req, res) => {
-  const id = req.body["id"];
-  // console.log("username:", username)
-  // console.log('username: ', username)
+  const id = req.body.email;
+  console.log("id", id)
+
   res.cookie("id", id);
   res.redirect('/urls');
 });
@@ -137,29 +137,21 @@ app.post('/register', (req, res) => {
   const id = generateRandomString(); 
   const email = req.body.email;
   const password = req.body.password;
+
   
   if (!password || !email) {
     return res.status(400).send("400 Status Code: No password or email entered.")
   } 
   
   const user = getUser(email);
-  // if (!user || user.password !== password) {
-  //   return res.status(302).send("302 Status Code: Bad username or password.")
-  // } 
-
   if (user) {
     return res.status(400).send("400 Status Code: Duplicate user.")
   } 
+
   const newUser = {id, email, password};
   users[id] = newUser;
-  // console.log("email:", req.body.email); 
-  // console.log("body", req.body);
-
-
-  
   res.cookie("id", id);
-  res.redirect('/urls');
-  
+  res.redirect('/urls'); 
 })
 
 app.post("/logout", (req, res) => {
@@ -202,8 +194,7 @@ app.get("/login", (req, res) => {
 app.get("/register", (req, res) => {
   const id = req.cookies["id"];
   const user = users["id"];
-  let templateVars = { urls: urlDatabase,
-    user: user};
+  let templateVars = { urls: urlDatabase, user: user};
   res.render("index_register", templateVars);
 });
 
