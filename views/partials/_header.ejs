@@ -12,7 +12,7 @@
       </div>
     </div>
     <% if (!user) { %>
-      <form class="form-inline" action="/register" method="GET" >
+      <form class="form-inline" action="/login" method="GET" >
         <div class="form-group mb-2">
           <button type="submit" class="btn btn-primary">Register</button>
         </div>
@@ -23,7 +23,7 @@
       </div>
     </form>
     <% } else { %>
-      "Succesfully logged in as: <%= user.name %>"
+      "Succesfully logged in as: <%= user.email %>"
       <td>
         <form method="POST" action="/logout">
           <button type="submit" class="btn btn-primary">Logout</button>    
