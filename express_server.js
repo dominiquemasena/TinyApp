@@ -16,11 +16,14 @@ function generateRandomString() {
 }
 
 const getUser = function(email) {
+  console.log(`getuser email: ${email}`)
   for (let user in users) {
-    if (user.email === email) {
-      return user;
+    if (users[user].email === email) {
+      console.log(`user: ${users[user]}`)
+      return users[user];
     } 
   } 
+  return false
 }
 
 /// Databases {created URLs and users} ///
@@ -64,9 +67,9 @@ app.get("/urls.json", (req, res) => {
 
 // Route TO VIEW PAGE TO CREATE NEW URL //
 app.get("/urls", (req, res) => {
-  const id = req.cookies["id"];
-  const user = users["id"];
-  // console.log("user id =", id);
+  const id = req.cookies["user"];
+  const user = users[id];
+  console.log("user id =", users);
 
   let templateVars = { urls: urlDatabase, user: user};
   res.render("urls_index", templateVars);
@@ -74,8 +77,8 @@ app.get("/urls", (req, res) => {
 
 // Route TO VIEW LOG IN PAGE //
 app.get("/login", (req, res) => {
-  const id = req.cookies["id"];
-  const user = users["id"];
+  const id = req.cookies["user"];
+  const user = users[id];
   let templateVars = { urls: urlDatabase,
     user: user};
   res.render("urls_login", templateVars);
@@ -83,7 +86,7 @@ app.get("/login", (req, res) => {
 
 // Route TO VIEW THE REGISTRATION PAGE //
 app.get("/register", (req, res) => {
-  const id = req.cookies["id"];
+  const id = req.cookies["user"];
   const user = users["id"];
   let templateVars = { urls: urlDatabase, user: user};
   res.render("index_register", templateVars);
@@ -91,7 +94,7 @@ app.get("/register", (req, res) => {
 
 // Route TO VIEW PAGE TO CREATE NEW URL //
 app.get("/urls/new", (req, res) => {
-  const id = req.cookies["id"];
+  const id = req.cookies["user"];
   const user = users["id"];
   const templateVars = {
     user: user
@@ -101,7 +104,7 @@ app.get("/urls/new", (req, res) => {
 
 // Route TO VIEW PAGE WHERE CREATE URLs ARE DISPLAYED //
 app.get("/urls/:shortURL", (req, res) => {
-  const id = req.cookies["id"];
+  const id = req.cookies["user"];
   const user = users["id"];
   let templateVars = { shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL], 
@@ -111,7 +114,7 @@ app.get("/urls/:shortURL", (req, res) => {
 
 // Route TO VIEW PAGE WHERE URLs IS MODIFIED //
 app.get("/urls/:shortURL/edit", (req, res) => {
-  const id = req.cookies["id"];
+  const id = req.cookies["user"];
   const user = users["id"];
   const templateVars = {
     shortURL: req.params.shortURL,
@@ -140,10 +143,14 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 
 // Route for logging in to an account //
 app.post("/login", (req, res) => {
-  const id = req.body.email;
- 
-  res.cookie("id", id);
-  res.redirect('/urls');
+  const email = req.body.email;
+  if(getUser(email)){
+    const user = getUser(email)
+    res.cookie("user", user.id);
+    res.redirect('/urls');
+  } else {
+    res.redirect('/register')
+  }
 });
 
 // Route for signing up for an account //
@@ -164,15 +171,17 @@ app.post('/register', (req, res) => {
   } 
 
   const newUser = {id, email, password};
+  console.log(`new user: ${newUser}`)
   users[id] = newUser;
-  res.cookie("id", id);
+  console.log(`db: ${users}`)
+  res.cookie("user", id);
   res.redirect('/urls'); 
 })
 
 // Route for logging out of an account //
 app.post("/logout", (req, res) => {
-  const id = req.body["id"]
-  res.clearCookie("id", {path: "id"});
+  // const id = req.body["id"]
+  res.clearCookie("user");
   res.redirect('/urls');
 });
 
