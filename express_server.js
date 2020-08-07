@@ -96,6 +96,9 @@ app.get("/register", (req, res) => {
 app.get("/urls/new", (req, res) => {
   const id = req.cookies["user"];
   const user = users["id"];
+      if(!user) {
+        return res.redirect("/login");
+      }
   const templateVars = {
     user: user
   };
@@ -206,5 +209,3 @@ app.post("/u/:shortURL", (req, res) => {
 app.listen(PORT, () => {
   console.log(`Example app listening on port ${PORT}!`);
 });
-
-
