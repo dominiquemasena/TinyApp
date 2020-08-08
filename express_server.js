@@ -29,10 +29,8 @@ const urlsForUser = (id) => {
 };
 
 const getUser = function(email) {
-  console.log(`getuser email: ${email}`)
   for (let user in users) {
     if (users[user].email === email) {
-      console.log(`user: ${users[user]}`)
       return users[user];
     } 
   } 
@@ -92,7 +90,6 @@ app.get("/urls", (req, res) => {
         
         // }
         res.render("urls_index", templateVars)}
-        console.log("user id =", users);
       });
       
 app.post("/urls", (req, res) => {
@@ -101,7 +98,6 @@ app.post("/urls", (req, res) => {
         urlDatabase[shortURL] = { 
           longURL: req.body.longURL, 
           userID: req.cookies["user"] };
-        console.log(urlDatabase[shortURL])
         res.redirect(`/urls/${shortURL}`)
       })
 
@@ -160,9 +156,7 @@ app.post('/register', (req, res) => {
   }
 
   const newUser = {id, email, password};
-  console.log(`new user: ${newUser}`)
   users[id] = newUser;
-  console.log(`db: ${users}`)
   res.cookie("user", id);
   res.redirect('/urls'); 
 })
@@ -231,7 +225,6 @@ app.post("/logout", (req, res) => {
 
 app.get("/u/:shortURL", (req, res) => {
   const longURL = urlDatabase[req.params.shortURL].longURL;
-  console.log(longURL);
   res.redirect(longURL);
 
 })
