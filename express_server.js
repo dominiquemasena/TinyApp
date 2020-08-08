@@ -11,9 +11,13 @@ app.use(cookieParser());
 app.set("view engine", "ejs");
 
 /// GET ROUTES ///
-app.get("/", (req, res) => {
-  res.send("Hello!");
-});
+app.get("/", (req, res) => { 
+    const id = req.cookies["user"];
+    const user = users[id];
+    const templateVars = { urls: urlDatabase,
+      user: user};
+    res.render("urls_login", templateVars);
+  });
 
 app.get("/hello", (req, res) => {
   res.send("<html><body>Hello <b>World</b></body></html>\n");
