@@ -4,7 +4,7 @@ const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8080;
 
-const { urlDatabase, users, generateRandomString} = require("./helper");
+const { urlDatabase, users, generateRandomString, getUser} = require("./helper");
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
@@ -60,8 +60,9 @@ app.get("/login", (req, res) => {
 
 app.post("/login", (req, res) => {
   const email = req.body.email;
-  if (getUser(email)) {
-    const user = getUser(email);
+  const password = req.body.password;
+  if (getUser(email, password)) {
+    const user = getUser(email, password);
     res.cookie("user", user.id);
     res.redirect("/urls");
   } else {
@@ -102,7 +103,7 @@ app.post("/register", (req, res) => {
 // ROUTES FOR THE CREATION OF A NEW URL //
 app.get("/urls/new", (req, res) => {
   const id = req.cookies["user"];
-  const user = users["id"];
+  const user = users[id];
   const templateVars = {
     user: user
   };
@@ -116,23 +117,33 @@ app.get("/urls/new", (req, res) => {
 // ROUTES WHERE CREATED URLs ARE DISPLAYED //
 app.get("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user"];
-  const user = users["id"];
+  const user = users[id];
   const templateVars = { shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: user};
+    if (!id) {
+      res.redirect("/urls")
+    } else {
+
   res.render("urls_show", templateVars);
+}
+
 });
 
 // ROUTES WHERE URLs ARE MODIFIED //
 app.get("/urls/:shortURL/edit", (req, res) => {
   const id = req.cookies["user"];
-  const user = users["id"];
+  const user = users[id];
   const templateVars = {
     shortURL: req.params.shortURL,
     longURL: urlDatabase[req.params.shortURL].longURL,
     user: user
   };
+  if (!id) {
+    res.redirect("/urls")
+  } else {
   res.render("urls_show", templateVars);
+}
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
@@ -143,10 +154,28 @@ app.post("/urls/:shortURL/edit", (req, res) => {
 });
 
 // ROUTE FOR THE DELETION OF URLS //
-app.post("/urls/:short/delete", (req,res) => {
-  delete urlDatabase[req.params.short];
-  res.redirect(`/urls/`);
+app.post("/urls/:shortURL/delete", (req,res) => {
+  const id = req.cookies["user"];
+  delete urlDatabase[req.params.shortURL];
+  if (!id) {
+    res.redirect("/login")
+  } else {
+
+  res.redirect(`/urls`);
+  }
 });
+
+app.get("/urls/:shortURL/delete", (req,res) => {
+  const id = req.cookies["user"];
+  delete urlDatabase[req.params.shortURL];
+  if (!id) {
+    res.redirect("/login")
+  } else {
+
+  res.redirect(`/urls`);
+  }
+});
+
 
 // ROUTES FOR LOGGING OUT OF AN ACCOUNT //
 app.post("/logout", (req, res) => {
