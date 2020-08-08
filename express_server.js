@@ -29,8 +29,8 @@ const getUser = function(email) {
 /// Databases {created URLs and users} ///
 
 const urlDatabase = {
-  "b2xVn2": "http://www.lighthouselabs.ca",
-  "9sm5xK": "http://www.google.com"
+  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "c4t3r2U" },
+  "9sm5xK": { longURL: "http://www.google.com", userID: "aKadOwn1ng"}
 };
 
 const users = { 
@@ -110,7 +110,7 @@ app.get("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user"];
   const user = users["id"];
   let templateVars = { shortURL: req.params.shortURL, 
-    longURL: urlDatabase[req.params.shortURL], 
+    longURL: urlDatabase[req.params.shortURL].longURL, 
     user: user};
   res.render("urls_show", templateVars);
 });
@@ -121,7 +121,7 @@ app.get("/urls/:shortURL/edit", (req, res) => {
   const user = users["id"];
   const templateVars = {
     shortURL: req.params.shortURL,
-    longURL: urlDatabase[req.params.shortURL],
+    longURL: urlDatabase[req.params.shortURL].longURL,
     user: user
   };
   res.render("urls_show", templateVars);
@@ -140,7 +140,7 @@ app.post('/urls/:short/delete', (req,res) => {
 app.post("/urls/:shortURL/edit", (req, res) => {
   let shortURL = req.params.shortURL;
   let longURL = req.body.longURL;
-  urlDatabase[shortURL] = longURL;
+  urlDatabase[shortURL].longURL = longURL;
   res.redirect("/urls")
 }); 
 
@@ -168,10 +168,17 @@ app.post('/register', (req, res) => {
     return res.status(400).send("400 Status Code: No password or email entered.")
   } 
   
-  const user = getUser(email);
-  if (user) {
-    return res.status(400).send("400 Status Code: Duplicate user.")
-  } 
+  // const user = getUser(email);
+  // if (user) {
+  //   return res.status(400).send("400 Status Code: Duplicate user.")
+  // } 
+
+  // checking if the user already exists
+  for (let user in users) {
+    if (users[user].email === email) {
+      return res.status(400).send("Email already exist. Register with different email.");
+    }
+  }
 
   const newUser = {id, email, password};
   console.log(`new user: ${newUser}`)
@@ -192,18 +199,24 @@ app.post("/logout", (req, res) => {
 
 app.post("/urls", (req, res) => {
   const shortURL = generateRandomString();
-  urlDatabase[shortURL] = req.body.longURL;
+  // urlDatabase[shortURL] = req.body.longURL;
+  urlDatabase[shortURL] = { 
+    longURL: req.body.longURL, 
+    userID: req.cookies["user"] };
   console.log(urlDatabase[shortURL])
   res.redirect(`/urls/${shortURL}`)
 })
 
 
-app.post("/u/:shortURL", (req, res) => {
-  const longURL = urlDatabase.shortURL;
-  console.log(urlDatabase[shortURL])
+
+app.get("/u/:shortURL", (req, res) => {
+  const longURL = urlDatabase[req.params.shortURL].longURL;
+  console.log(longURL);
   res.redirect(longURL);
 
 })
+
+
 
 
 app.listen(PORT, () => {
