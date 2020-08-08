@@ -12,4 +12,5 @@ I will embed screenshot of the application.
 2. Install required packages such as Nodemon.
 3. Run npm start and navigate the application.
 
-# 
+# Project Display 
+![](moiauss.jpg)
