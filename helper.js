@@ -17,14 +17,14 @@ function generateRandomString() {
 //   return newURLs;
 // };
 
-// const getUser = function(email) {
-//   for (let user in users) {
-//     if (users[user].email === email) {
-//       return users[user];
-//     } 
-//   } 
-//   return false
-// }
+const getUser = function(email, password) {
+  for (let user in users) {
+    if ((users[user].email === email) && (users[user].password === password))  {
+      return users[user];
+    } 
+  } 
+  return false
+}
 
 /// Databases {created URLs and users} ///
 
@@ -48,4 +48,4 @@ const users = {
   }
 };
 
-module.exports = { urlDatabase, users, generateRandomString };
+module.exports = { urlDatabase, users, generateRandomString, getUser };
