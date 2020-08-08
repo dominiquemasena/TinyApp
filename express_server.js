@@ -4,60 +4,12 @@ const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8080; 
 
+const { urlDatabase, users, generateRandomString} = require('./helper');
 
 app.use(bodyParser.urlencoded({extended: true}));
 app.use(cookieParser());
 app.set("view engine", "ejs");
 
-/// Helper Functions ///
-
-function generateRandomString() {
-  return Math.random().toString(36).substring(2,8);
-}
-
-const urlsForUser = (id) => {
-  let newURLs = [];
-  for (let urlInfo in urlDatabase) {
-    if (id === urlDatabase[url].userID) {
-      newURLs.push({
-        shortURL: urlInfo,
-        longURL: urlDatabase[url].longURL
-      })
-    }
-  }
-  return newURLs;
-};
-
-const getUser = function(email) {
-  for (let user in users) {
-    if (users[user].email === email) {
-      return users[user];
-    } 
-  } 
-  return false
-}
-
-/// Databases {created URLs and users} ///
-
-const urlDatabase = {
-  "b2xVn2": { longURL: "http://www.lighthouselabs.ca", userID: "c4t3r2U" },
-  "9sm5xK": { longURL: "http://www.google.com", userID: "aKadOwn1ng"}
-};
-
-const users = { 
-  "dominiquemasena": {
-    id: "dominiquemasena", 
-    email: "dodo@example.com", 
-    password: "purple-monkey-dinosaur"
-
-  },
- "user2RandomID": {
-    id: "user2RandomID", 
-    email: "user2@example.com", 
-    password: "dishwasher-funk"
-
-  }
-};
 
 
 /// GET ROUTES ///
@@ -80,21 +32,15 @@ app.get("/urls", (req, res) => {
   
   const id = req.cookies["user"];
   const user = users[id];
-  let templateVars = { urls: urlDatabase, user: user}
+  const templateVars = { urls: urlDatabase, user: user}
   if(!id) {
     return res.redirect("/login");
   } else { 
-    // if (!req.cookies["user"]) {
-      //   res.status(403).send("Login into your account. Don't have an account? Sign up!")
-      // } else {
-        
-        // }
         res.render("urls_index", templateVars)}
       });
       
 app.post("/urls", (req, res) => {
         const shortURL = generateRandomString();
-        // urlDatabase[shortURL] = req.body.longURL;
         urlDatabase[shortURL] = { 
           longURL: req.body.longURL, 
           userID: req.cookies["user"] };
@@ -107,7 +53,7 @@ app.post("/urls", (req, res) => {
 app.get("/login", (req, res) => {
   const id = req.cookies["user"];
   const user = users[id];
-  let templateVars = { urls: urlDatabase,
+  const templateVars = { urls: urlDatabase,
     user: user};
   res.render("urls_login", templateVars);
 });
@@ -128,7 +74,7 @@ app.post("/login", (req, res) => {
 app.get("/register", (req, res) => {
   const id = req.cookies["user"];
   const user = users["id"];
-  let templateVars = { urls: urlDatabase, user: user};
+  const templateVars = { urls: urlDatabase, user: user};
   res.render("index_register", templateVars);
 });
 
@@ -142,14 +88,8 @@ app.post('/register', (req, res) => {
   if (!password || !email) {
     return res.status(400).send("400 Status Code: No password or email entered.")
   } 
-  
-  // const user = getUser(email);
-  // if (user) {
-  //   return res.status(400).send("400 Status Code: Duplicate user.")
-  // } 
 
-  // checking if the user already exists
-  for (let user in users) {
+  for (const user in users) {
     if (users[user].email === email) {
       return res.status(400).send("Email already exist. Register with different email.");
     }
@@ -179,7 +119,7 @@ app.get("/urls/new", (req, res) => {
 app.get("/urls/:shortURL", (req, res) => {
   const id = req.cookies["user"];
   const user = users["id"];
-  let templateVars = { shortURL: req.params.shortURL, 
+  const templateVars = { shortURL: req.params.shortURL, 
     longURL: urlDatabase[req.params.shortURL].longURL, 
     user: user};
   res.render("urls_show", templateVars);
@@ -198,8 +138,8 @@ app.get("/urls/:shortURL/edit", (req, res) => {
 });
 
 app.post("/urls/:shortURL/edit", (req, res) => {
-  let shortURL = req.params.shortURL;
-  let longURL = req.body.longURL;
+  const shortURL = req.params.shortURL;
+  const longURL = req.body.longURL;
   urlDatabase[shortURL].longURL = longURL;
   res.redirect("/urls")
 }); 
@@ -215,7 +155,6 @@ app.post('/urls/:short/delete', (req,res) => {
 
 // ROUTES FOR LOGGING OUT OF AN ACCOUNT //
 app.post("/logout", (req, res) => {
-  // const id = req.body["id"]
   res.clearCookie("user");
   res.redirect('/urls');
 });
