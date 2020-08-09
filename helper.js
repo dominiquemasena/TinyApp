@@ -17,6 +17,13 @@ function generateRandomString() {
 //   return newURLs;
 // };
 
+const bcrypt = require('bcrypt');
+const cryptPassword = "l3ts-c0d3"
+const saltRounds = 10;
+const salt = bcrypt.genSaltSync(saltRounds);
+
+const hash = bcrypt.hashSync(cryptPassword, saltRounds);
+
 const getUser = function(email, password) {
   for (let user in users) {
     if ((users[user].email === email) && (users[user].password === password))  {
@@ -37,13 +44,13 @@ const users = {
   "dominiquemasena": {
     id: "dominiquemasena", 
     email: "dodo@example.com", 
-    password: "purple-monkey-dinosaur"
+    password: bcrypt.hashSync("purple-monkey-dinosaur", salt)
 
   },
  "user2RandomID": {
     id: "user2RandomID", 
     email: "user2@example.com", 
-    password: "dishwasher-funk"
+    password: bcrypt.hashSync("dishwasher-funk", salt)
 
   }
 };
