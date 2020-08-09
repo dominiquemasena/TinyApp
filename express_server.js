@@ -3,6 +3,12 @@ const cookieParser = require("cookie-parser");
 const bodyParser = require("body-parser");
 const app = express();
 const PORT = 8080;
+const bcrypt = require('bcrypt');
+const cryptPassword = "l3ts-c0d3"
+const saltRounds = 10;
+const salt = bcrypt.genSaltSync(saltRounds);
+
+const hash = bcrypt.hashSync(cryptPassword, saltRounds);
 
 const { urlDatabase, users, generateRandomString, getUser} = require("./helper");
 
@@ -82,7 +88,7 @@ app.post("/register", (req, res) => {
  
   const id = generateRandomString();
   const email = req.body.email;
-  const password = req.body.password;
+  const password = bcrypt.hashSync(req.body.password, salt);
   
   if (!password || !email) {
     return res.status(400).send("400 Status Code: No password or email entered.");
